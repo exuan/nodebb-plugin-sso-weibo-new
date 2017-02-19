@@ -14,7 +14,7 @@
 	var authenticationController = module.parent.require('./controllers/authentication');
 
 	var constants = Object.freeze({
-		'name': "Twitter",
+		'name': "weibo",
 		'admin': {
 			'route': '/plugins/sso-weibo-new',
 			'icon': 'fa-weibo'
@@ -38,7 +38,7 @@
 
 
     Weibo.getStrategy = function (strategies, callback) {
-		meta.settings.get('sso-twitter', function (err, settings) {
+		meta.settings.get('sso-weibo-new', function (err, settings) {
 			Twitter.settings = settings;
 			if (!err && settings['key'] && settings['secret']) {
 				passport.use(new passportWeibo({
@@ -104,8 +104,8 @@
 		})
 	};
 
-	Twitter.login = function (twid, handle, photos, callback) {
-		Twitter.getUidByTwitterId(twid, function (err, uid) {
+	Weibo.login = function (twid, handle, photos, callback) {
+		Weibo.getUidByTwitterId(twid, function (err, uid) {
 			if (err) {
 				return callback(err);
 			}
@@ -152,7 +152,7 @@
 		});
 	};
 
-	Twitter.addMenuItem = function (custom_header, callback) {
+	Weibo.addMenu = function (custom_header, callback) {
 		custom_header.authentication.push({
 			"route": constants.admin.route,
 			"icon": constants.admin.icon,
@@ -162,7 +162,7 @@
 		callback(null, custom_header);
 	};
 
-	Twitter.deleteUserData = function (uid, callback) {
+	Weibo.deleteUser = function (uid, callback) {
 		async.waterfall([
 			async.apply(user.getUserField, uid, 'twid'),
 			function (oAuthIdToDelete, next) {
@@ -177,5 +177,5 @@
 		});
 	};
 
-	module.exports = Twitter;
+	module.exports = Weibo;
 }(module));
