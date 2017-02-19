@@ -1,0 +1,34 @@
+{
+  "name": "nodebb-plugin-sso-weibo-new",
+  "version": "0.0.1",
+  "description": "NodeBB weibo SSO",
+  "main": "library.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/exuan/nodebb-plugin-sso-weibo-new"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "weibo",
+    "sso",
+    "single sign on",
+    "registration"
+  ],
+  "author": {
+    "name": "xuan",
+    "email": "admin@exuan.org"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/exuan/nodebb-plugin-sso-weibo-new/issues"
+  },
+  "readme": "",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "passport-weibo": "~0.1.2"
+  },
+  "nbbpm": {
+    "compatibility": "^1.0.1"
+  }
+}

@@ -1,0 +1,18 @@
+{
+	"id": "nodebb-plugin-sso-weibo-new",
+	"name": "NodeBB weibo SSO",
+	"description": "NodeBB Plugin that allows users to login/register via their weibo account.",
+	"url": "https://github.com/exuan/nodebb-plugin-sso-weibo-new",
+	"library": "./library.js",
+	"hooks": [
+		{ "hook": "filter:auth.init", "method": "getStrategy" },
+		{ "hook": "filter:auth.list", "method": "getAssociation" },
+		{ "hook": "filter:admin.header.build", "method": "addMenu" },
+		{ "hook": "static:app.load", "method": "init" },
+		{ "hook": "filter:user.delete", "method": "deleteUser" }
+	],
+	"templates": "./templates",
+	"acpScripts": [
+		"static/lib/admin.js"
+	]
+}
