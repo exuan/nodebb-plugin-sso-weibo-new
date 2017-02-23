@@ -47,9 +47,7 @@
 					callbackURL: nconf.get('url') + '/auth/weibo/callback',
 					passReqToCallback: true
 				}, function (req, token, tokenSecret, profile, done) {
-				    console.log(req);
 				    console.log(token);
-				    console.log(tokenSecret);
 				    console.log(profile);
 
 					if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
@@ -91,7 +89,7 @@
 			if (weiboId) {
 				data.associations.push({
 					associated: true,
-					url: 'https://twitter.com/intent/user?user_id=' + twitterId,
+					url: 'https://twitter.com/intent/user?user_id=' + weiboId,
 					name: constants.name,
 					icon: constants.admin.icon
 				});
