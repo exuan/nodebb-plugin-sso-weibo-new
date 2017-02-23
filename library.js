@@ -39,22 +39,26 @@
 
     Weibo.getStrategy = function (strategies, callback) {
 		meta.settings.get('sso-weibo-new', function (err, settings) {
-			Twitter.settings = settings;
+			Weibo.settings = settings;
 			if (!err && settings['key'] && settings['secret']) {
 				passport.use(new passportWeibo({
 					consumerKey: settings['key'],
 					consumerSecret: settings['secret'],
-					callbackURL: nconf.get('url') + '/auth/twitter/callback',
+					callbackURL: nconf.get('url') + '/auth/weibo/callback',
 					passReqToCallback: true
 				}, function (req, token, tokenSecret, profile, done) {
+				    console.log(req);
+				    console.log(token);
+				    console.log(tokenSecret);
+				    console.log(profile);
+
 					if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
-						// Save twitter-specific information to the user
-						user.setUserField(req.user.uid, 'twid', profile.id);
-						db.setObjectField('twid:uid', profile.id, req.user.uid);
+						user.setUserField(req.user.uid, 'wbid', profile.id);
+						db.setObjectField('wbid:uid', profile.id, req.user.uid);
 						return done(null, req.user);
 					}
 
-					Twitter.login(profile.id, profile.username, profile.photos, function (err, user) {
+					Weibo.login(profile.id, profile.username, profile.photos, function (err, user) {
 						if (err) {
 							return done(err);
 						}
@@ -65,9 +69,9 @@
 				}));
 
 				strategies.push({
-					name: 'twitter',
-					url: '/auth/twitter',
-					callbackURL: '/auth/twitter/callback',
+					name: 'weibo',
+					url: '/auth/weibo',
+					callbackURL: '/auth/weibo/callback',
 					icon: constants.admin.icon,
 					scope: ''
 				});
@@ -78,13 +82,13 @@
 		});
 	};
 
-	Twitter.getAssociation = function (data, callback) {
-		user.getUserField(data.uid, 'twid', function (err, twitterId) {
+	Weibo.getAssociation = function (data, callback) {
+		user.getUserField(data.uid, 'wbid', function (err, weiboId) {
 			if (err) {
 				return callback(err, data);
 			}
 
-			if (twitterId) {
+			if (weiboId) {
 				data.associations.push({
 					associated: true,
 					url: 'https://twitter.com/intent/user?user_id=' + twitterId,
@@ -94,7 +98,7 @@
 			} else {
 				data.associations.push({
 					associated: false,
-					url: nconf.get('url') + '/auth/twitter',
+					url: nconf.get('url') + '/auth/weibo',
 					name: constants.name,
 					icon: constants.admin.icon
 				});
@@ -104,8 +108,8 @@
 		})
 	};
 
-	Weibo.login = function (twid, handle, photos, callback) {
-		Weibo.getUidByTwitterId(twid, function (err, uid) {
+	Weibo.login = function (wbid, handle, photos, callback) {
+		Weibo.getUidByWeiboId(wbid, function (err, uid) {
 			if (err) {
 				return callback(err);
 			}
@@ -122,10 +126,9 @@
 						return callback(err);
 					}
 
-					// Save twitter-specific information to the user
-					user.setUserField(uid, 'twid', twid);
-					db.setObjectField('twid:uid', twid, uid);
-					var autoConfirm = Twitter.settings && Twitter.settings.autoconfirm === "on" ? 1 : 0;
+					user.setUserField(uid, 'wbid', wbid);
+					db.setObjectField('wbid:uid', wbid, uid);
+					var autoConfirm = Weibo.settings && Weibo.settings.autoconfirm === "on" ? 1 : 0;
 					user.setUserField(uid, 'email:confirmed', autoConfirm);
 					// Save their photo, if present
 					if (photos && photos.length > 0) {
@@ -143,8 +146,8 @@
 		});
 	};
 
-	Twitter.getUidByTwitterId = function (twid, callback) {
-		db.getObjectField('twid:uid', twid, function (err, uid) {
+	Weibo.getUidByWeiboId = function (wbid, callback) {
+		db.getObjectField('wbid:uid', wbid, function (err, uid) {
 			if (err) {
 				return callback(err);
 			}
@@ -164,13 +167,13 @@
 
 	Weibo.deleteUser = function (uid, callback) {
 		async.waterfall([
-			async.apply(user.getUserField, uid, 'twid'),
+			async.apply(user.getUserField, uid, 'wbid'),
 			function (oAuthIdToDelete, next) {
-				db.deleteObjectField('twid:uid', oAuthIdToDelete, next);
+				db.deleteObjectField('wbid:uid', oAuthIdToDelete, next);
 			}
 		], function (err) {
 			if (err) {
-				winston.error('[sso-twitter] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
+				winston.error('[sso-weibo] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
 				return callback(err);
 			}
 			callback(null, uid);

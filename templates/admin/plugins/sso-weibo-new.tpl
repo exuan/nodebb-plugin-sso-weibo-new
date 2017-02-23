@@ -4,12 +4,12 @@
 	<div class="alert alert-info">
 		<ol>
 				<li>
-					Create a new App via the <a href="https://apps.twitter.com/">Twitter Apps Page</a> and then
-					paste your application details here. Your <em>Callback URL</em> is <code>http://your.domain/auth/twitter/callback</code>
+					Create a new App via the <a href="http://open.weibo.com/">weibo apps Page</a> and then
+					paste your application details here. Your <em>Callback URL</em> is <code>http://your.domain/auth/weibo/callback</code>
 					(replace <code>your.domain</code> as necessary).
 				</li>
 				<li>
-					In the "Keys and Access Tokens" tab, you will find a "Consumer Key" and "Consumer Secret", paste these two
+					In the "basic info" tab, you will find a "App Key" and "App Secret", paste these two
 					values into the corresponding fields below
 				</li>
 				<li>
@@ -19,12 +19,12 @@
 	</div>
 	<form role="form" class="sso-weibo-new-settings">
 		<div class="form-group">
-			<label for="key">API Key</label>
-			<input type="text" name="key" id="key" title="API Key" class="form-control" placeholder="API Key">
+			<label for="key">App Key</label>
+			<input type="text" name="key" id="key" title="API Key" class="form-control" placeholder="App Key">
 		</div>
 		<div class="form-group">
-			<label for="secret">API Secret</label>
-			<input type="text" name="secret" id="secret" title="API Secret" class="form-control" placeholder="API Secret">
+			<label for="secret">App Secret</label>
+			<input type="text" name="secret" id="secret" title="API Secret" class="form-control" placeholder="App Secret">
 		</div>
 		<div class=" checkbox">
 			<label for="showSiteTitle" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
