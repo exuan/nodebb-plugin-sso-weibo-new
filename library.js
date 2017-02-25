@@ -42,21 +42,18 @@
 			Weibo.settings = settings;
 			if (!err && settings['key'] && settings['secret']) {
 				passport.use(new passportWeibo({
-					consumerKey: settings['key'],
-					consumerSecret: settings['secret'],
-					callbackURL: nconf.get('url') + '/auth/weibo/callback',
-					passReqToCallback: true
-				}, function (req, token, tokenSecret, profile, done) {
-				    console.log(token);
-				    console.log(profile);
-
+                    clientID: settings['key'],
+                    clientSecret: settings['secret'],
+                    callbackURL: nconf.get('url') + '/auth/weibo/callback',
+                    passReqToCallback: true
+				}, function (req, accessToken, refreshToken, profile, done) {
 					if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
 						user.setUserField(req.user.uid, 'wbid', profile.id);
 						db.setObjectField('wbid:uid', profile.id, req.user.uid);
 						return done(null, req.user);
 					}
 
-					Weibo.login(profile.id, profile.username, profile.photos, function (err, user) {
+					Weibo.login(profile.id, profile.displayName, profile._raw.profile_image_url, function (err, user) {
 						if (err) {
 							return done(err);
 						}
@@ -86,10 +83,10 @@
 				return callback(err, data);
 			}
 
-			if (weiboId) {
+            if (weiboId) {
 				data.associations.push({
 					associated: true,
-					url: 'https://twitter.com/intent/user?user_id=' + weiboId,
+					url: 'https://weibo.com/u/' + weiboId,
 					name: constants.name,
 					icon: constants.admin.icon
 				});
@@ -106,7 +103,7 @@
 		})
 	};
 
-	Weibo.login = function (wbid, handle, photos, callback) {
+	Weibo.login = function (wbid, username, photo, callback) {
 		Weibo.getUidByWeiboId(wbid, function (err, uid) {
 			if (err) {
 				return callback(err);
@@ -119,7 +116,7 @@
 				});
 			} else {
 				// New User
-				user.create({username: handle}, function (err, uid) {
+				user.create({username: username}, function (err, uid) {
 					if (err) {
 						return callback(err);
 					}
@@ -129,11 +126,9 @@
 					var autoConfirm = Weibo.settings && Weibo.settings.autoconfirm === "on" ? 1 : 0;
 					user.setUserField(uid, 'email:confirmed', autoConfirm);
 					// Save their photo, if present
-					if (photos && photos.length > 0) {
-						var photoUrl = photos[0].value;
-						photoUrl = path.dirname(photoUrl) + '/' + path.basename(photoUrl, path.extname(photoUrl)).slice(0, -6) + 'bigger' + path.extname(photoUrl);
-						user.setUserField(uid, 'uploadedpicture', photoUrl);
-						user.setUserField(uid, 'picture', photoUrl);
+					if (photo && photo.length > 0) {
+						user.setUserField(uid, 'uploadedpicture', photo);
+						user.setUserField(uid, 'picture', photo);
 					}
 
 					callback(null, {
@@ -167,9 +162,12 @@
 		async.waterfall([
 			async.apply(user.getUserField, uid, 'wbid'),
 			function (oAuthIdToDelete, next) {
+				console.log(uid);
+		        console.log(oAuthIdToDelete);
 				db.deleteObjectField('wbid:uid', oAuthIdToDelete, next);
 			}
 		], function (err) {
+			console.log(err);
 			if (err) {
 				winston.error('[sso-weibo] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
 				return callback(err);
