@@ -25,7 +25,7 @@
 		settings: undefined
 	};
 
-    Weibo.init = function (data, callback) {
+	Weibo.init = function (data, callback) {
 		function render(req, res, next) {
 			res.render('admin/plugins/sso-weibo-new', {});
 		}
@@ -35,7 +35,6 @@
 
 		callback();
 	};
-
 
     Weibo.getStrategy = function (strategies, callback) {
 		meta.settings.get('sso-weibo-new', function (err, settings) {
@@ -70,7 +69,6 @@
 					icon: constants.admin.icon,
 					scope: ''
 				});
-
 			}
 
 			callback(null, strategies);
@@ -110,12 +108,10 @@
 			}
 
 			if (uid !== null) {
-				// Existing User
 				callback(null, {
 					uid: uid
 				});
 			} else {
-				// New User
 				user.create({username: username}, function (err, uid) {
 					if (err) {
 						return callback(err);
@@ -125,7 +121,7 @@
 					db.setObjectField('wbid:uid', wbid, uid);
 					var autoConfirm = Weibo.settings && Weibo.settings.autoconfirm === "on" ? 1 : 0;
 					user.setUserField(uid, 'email:confirmed', autoConfirm);
-					// Save their photo, if present
+
 					if (photo && photo.length > 0) {
 						user.setUserField(uid, 'uploadedpicture', photo);
 						user.setUserField(uid, 'picture', photo);
@@ -158,16 +154,15 @@
 		callback(null, custom_header);
 	};
 
-	Weibo.deleteUser = function (uid, callback) {
+	Weibo.deleteUser = function (data, callback) {
+		var uid = data.uid;
+
 		async.waterfall([
 			async.apply(user.getUserField, uid, 'wbid'),
 			function (oAuthIdToDelete, next) {
-				console.log(uid);
-		        console.log(oAuthIdToDelete);
 				db.deleteObjectField('wbid:uid', oAuthIdToDelete, next);
 			}
 		], function (err) {
-			console.log(err);
 			if (err) {
 				winston.error('[sso-weibo] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
 				return callback(err);
